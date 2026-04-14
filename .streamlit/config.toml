@@ -1,0 +1,27 @@
+[theme]
+base = "dark"
+primaryColor = "#00A896"
+backgroundColor = "#0f172a"
+secondaryBackgroundColor = "#1e293b"
+textColor = "#e2e8f0"
+font = "sans serif"
+
+[server]
+# Allow the PWA shell (port 8502) to embed Streamlit in an iframe
+enableCORS = false
+enableXsrfProtection = false
+# Disable the "Running on..." popup for cleaner embedded experience
+headless = true
+# Bind only to localhost — not exposed to network
+address = "localhost"
+port = 8501
+
+[browser]
+# Don't auto-open a second browser tab when Streamlit starts
+gatherUsageStats = false
+serverAddress = "localhost"
+serverPort = 8501
+
+[runner]
+# Faster re-runs
+magicEnabled = true

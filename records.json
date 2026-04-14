@@ -1,0 +1,112 @@
+[
+  {
+    "Date": "2026-04-01 20:33",
+    "Patient ID": "p0001",
+    "Patient Name": "aptoor",
+    "Gender": "Male",
+    "Age": 20,
+    "Facility": "ringim hospital",
+    "Severity": "Severe",
+    "Confidence (%)": 83.6,
+    "Technician": "lab1"
+  },
+  {
+    "Date": "2026-04-09 10:17",
+    "Patient ID": "p001",
+    "Patient Name": "umar bayajidda",
+    "Gender": "Male",
+    "Age": 23,
+    "Facility": "kafin hausa general",
+    "Severity": "Severe",
+    "Confidence (%)": 88.7,
+    "Technician": "lab1"
+  },
+  {
+    "Date": "2026-04-09 10:43",
+    "Patient ID": "p0004",
+    "Patient Name": "ahmad yahaya",
+    "Gender": "Male",
+    "Age": 28,
+    "Facility": "Aminu kano",
+    "Severity": "Severe",
+    "Confidence (%)": 79.9,
+    "Technician": "lab1"
+  },
+  {
+    "Date": "2026-04-14 16:35",
+    "Patient ID": "p00001",
+    "Patient Name": "hafiz",
+    "Gender": "Male",
+    "Age": 23,
+    "Facility": "AKTH",
+    "Severity": "Severe",
+    "Confidence (%)": 83.6,
+    "Technician": "lab1"
+  },
+  {
+    "Date": "2026-04-14 16:44",
+    "Patient ID": "P0001",
+    "Patient Name": "hafiz",
+    "Gender": "Male",
+    "Age": 19,
+    "Facility": "AKTH",
+    "Severity": "Severe",
+    "Confidence (%)": 88.7,
+    "Technician": "lab1"
+  },
+  {
+    "Date": "2026-04-14 18:08",
+    "Patient ID": "P0001",
+    "Patient Name": "ahmad yahaya",
+    "Gender": "Male",
+    "Age": 11,
+    "Facility": "Aminu kano",
+    "Severity": "Severe",
+    "Confidence (%)": 90.0,
+    "Technician": "lab1"
+  },
+  {
+    "Date": "2026-04-14 18:08",
+    "Patient ID": "P0001",
+    "Patient Name": "ahmad yahaya",
+    "Gender": "Male",
+    "Age": null,
+    "Facility": "Aminu kano",
+    "Severity": "Severe",
+    "Confidence (%)": 83.6,
+    "Technician": "lab1"
+  },
+  {
+    "Date": "2026-04-14 18:13",
+    "Patient ID": "p0001",
+    "Patient Name": "umar bayajidda",
+    "Gender": "Male",
+    "Age": null,
+    "Facility": "AKTH",
+    "Severity": "Severe",
+    "Confidence (%)": 88.7,
+    "Technician": "lab1"
+  },
+  {
+    "Date": "2026-04-14 18:16",
+    "Patient ID": "p0001",
+    "Patient Name": "umar bayajidda",
+    "Gender": "Male",
+    "Age": null,
+    "Facility": "AKTH",
+    "Severity": "Severe",
+    "Confidence (%)": 88.7,
+    "Technician": "lab1"
+  },
+  {
+    "Date": "2026-04-14 18:43",
+    "Patient ID": "p0001",
+    "Patient Name": "umar bayajidda",
+    "Gender": "Male",
+    "Age": null,
+    "Facility": "AKTH",
+    "Severity": "Non-severe",
+    "Confidence (%)": 90.7,
+    "Technician": "lab1"
+  }
+]

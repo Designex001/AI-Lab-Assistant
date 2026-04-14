@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Clinical-grade malaria severity classification powered by deep learning." />
+  <meta name="theme-color" content="#00A896" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="MalariaAI" />
+
+  <title>AI Malaria Lab Assistant</title>
+
+  <!-- PWA Manifest -->
+  <link rel="manifest" href="/manifest.json" />
+
+  <!-- Icons -->
+  <link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png" />
+  <link rel="apple-touch-icon" href="/icon-192.png" />
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --teal:   #00A896;
+      --teal2:  #028090;
+      --dark:   #0f172a;
+      --dark2:  #1e293b;
+      --text:   #e2e8f0;
+      --muted:  #94a3b8;
+    }
+
+    html, body {
+      height: 100%;
+      font-family: 'Inter', sans-serif;
+      background: var(--dark);
+      color: var(--text);
+      overflow: hidden;
+    }
+
+    /* ── Top install bar ─────────────────────────────────── */
+    #install-bar {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      height: 52px;
+      background: linear-gradient(90deg, #0d1b2a 0%, #1a2a3a 100%);
+      border-bottom: 1px solid rgba(0,168,150,0.35);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 20px;
+      z-index: 9999;
+      gap: 12px;
+      backdrop-filter: blur(12px);
+    }
+
+    #install-bar .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-shrink: 0;
+    }
+
+    #install-bar .brand-icon {
+      width: 32px; height: 32px;
+      background: linear-gradient(135deg, var(--teal), var(--teal2));
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px;
+    }
+
+    #install-bar .brand-name {
+      font-weight: 700;
+      font-size: 0.9rem;
+      color: var(--text);
+      white-space: nowrap;
+    }
+
+    #install-bar .brand-sub {
+      font-size: 0.7rem;
+      color: var(--muted);
+    }
+
+    #install-bar .center-status {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.78rem;
+      color: var(--muted);
+    }
+
+    .status-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: #10B981;
+      box-shadow: 0 0 8px rgba(16,185,129,0.7);
+      animation: pulse-dot 2s infinite;
+    }
+
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50%       { opacity: 0.6; transform: scale(0.85); }
+    }
+
+    #install-bar .actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-shrink: 0;
+    }
+
+    /* Install button — hidden by default, shown when browser fires event */
+    #btn-install {
+      display: none;
+      align-items: center;
+      gap: 7px;
+      background: linear-gradient(135deg, var(--teal), var(--teal2));
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      padding: 7px 16px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 4px 15px rgba(0,168,150,0.45);
+      transition: transform 0.15s, box-shadow 0.15s;
+      animation: glow-pulse 2.5s infinite;
+      white-space: nowrap;
+    }
+
+    #btn-install:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 22px rgba(0,168,150,0.65);
+    }
+
+    #btn-install.visible { display: flex; }
+
+    /* Arrow bounce */
+    #btn-install svg {
+      animation: arrow-bounce 1.4s ease-in-out infinite;
+    }
+
+    @keyframes arrow-bounce {
+      0%, 100% { transform: translateY(0); }
+      50%       { transform: translateY(-3px); }
+    }
+
+    @keyframes glow-pulse {
+      0%, 100% { box-shadow: 0 4px 15px rgba(0,168,150,0.45); }
+      50%       { box-shadow: 0 4px 25px rgba(0,168,150,0.75); }
+    }
+
+    /* Already installed badge */
+    #badge-installed {
+      display: none;
+      align-items: center;
+      gap: 6px;
+      background: rgba(16,185,129,0.15);
+      border: 1px solid rgba(16,185,129,0.4);
+      border-radius: 10px;
+      padding: 6px 14px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: #6ee7b7;
+    }
+
+    /* Offline banner */
+    #offline-banner {
+      display: none;
+      position: fixed;
+      top: 52px; left: 0; right: 0;
+      background: rgba(245,158,11,0.15);
+      border-bottom: 1px solid rgba(245,158,11,0.4);
+      color: #fcd34d;
+      font-size: 0.8rem;
+      font-weight: 600;
+      padding: 6px 20px;
+      text-align: center;
+      z-index: 9998;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 12px;
+    }
+
+    #offline-banner.hidden {
+      display: none !important;
+    }
+
+    #btn-close-offline {
+      background: rgba(245, 158, 11, 0.2);
+      border: 1px solid rgba(245, 158, 11, 0.4);
+      color: #fcd34d;
+      border-radius: 50%;
+      width: 20px; height: 20px;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer;
+      font-size: 14px;
+      line-height: 1;
+      padding-bottom: 2px;
+    }
+    #btn-close-offline:hover { background: rgba(245, 158, 11, 0.4); }
+
+    /* ── Main iframe ──────────────────────────────────── */
+    #app-frame {
+      position: fixed;
+      top: 52px; left: 0; right: 0; bottom: 0;
+      width: 100%;
+      height: calc(100vh - 52px);
+      border: none;
+      background: var(--dark);
+    }
+
+    /* ── Loading overlay ──────────────────────────────── */
+    #loading-overlay {
+      position: fixed;
+      inset: 0;
+      background: var(--dark);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 24px;
+      z-index: 10000;
+      transition: opacity 0.5s ease;
+    }
+
+    #loading-overlay.hiding {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .loader-logo {
+      font-size: 4.5rem;
+      animation: logo-bounce 1.5s ease-in-out infinite;
+    }
+
+    @keyframes logo-bounce {
+      0%, 100% { transform: translateY(0) scale(1); }
+      50%       { transform: translateY(-12px) scale(1.05); }
+    }
+
+    .loader-title {
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: var(--teal);
+    }
+
+    .loader-sub {
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+
+    .loader-bar-outer {
+      width: 220px;
+      height: 5px;
+      background: var(--dark2);
+      border-radius: 50px;
+      overflow: hidden;
+    }
+
+    .loader-bar-inner {
+      height: 100%;
+      background: linear-gradient(90deg, var(--teal), var(--teal2));
+      border-radius: 50px;
+      animation: loading-bar 2s ease-in-out infinite;
+    }
+
+    @keyframes loading-bar {
+      0%   { width: 0%;   margin-left: 0; }
+      50%  { width: 60%;  margin-left: 20%; }
+      100% { width: 0%;   margin-left: 100%; }
+    }
+
+    /* ── Retry overlay (if Streamlit not running) ─────── */
+    #retry-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: var(--dark);
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+      z-index: 10001;
+      text-align: center;
+      padding: 2rem;
+    }
+
+    #retry-overlay h2 {
+      color: #fcd34d;
+      font-size: 1.4rem;
+    }
+
+    #retry-overlay p {
+      color: var(--muted);
+      max-width: 460px;
+      line-height: 1.6;
+      font-size: 0.9rem;
+    }
+
+    #retry-overlay code {
+      display: inline-block;
+      background: var(--dark2);
+      border: 1px solid rgba(0,168,150,0.4);
+      border-radius: 8px;
+      padding: 10px 20px;
+      color: var(--teal);
+      font-size: 0.95rem;
+      font-family: monospace;
+      margin: 6px 0;
+    }
+
+    #btn-retry {
+      background: linear-gradient(135deg, var(--teal), var(--teal2));
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      padding: 10px 28px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      cursor: pointer;
+      margin-top: 8px;
+      box-shadow: 0 4px 15px rgba(0,168,150,0.4);
+      transition: transform 0.15s;
+    }
+
+    #btn-retry:hover { transform: translateY(-2px); }
+  </style>
+</head>
+<body>
+
+  <!-- ── Loading overlay ──────────────────────────────── -->
+  <div id="loading-overlay">
+    <div class="loader-logo">🩺</div>
+    <div class="loader-title">AI Malaria Lab Assistant</div>
+    <div class="loader-sub">Starting local server…</div>
+    <div class="loader-bar-outer">
+      <div class="loader-bar-inner"></div>
+    </div>
+  </div>
+
+  <!-- ── Retry overlay ────────────────────────────────── -->
+  <div id="retry-overlay">
+    <div style="font-size:3rem;">⚠️</div>
+    <h2>Streamlit Server Not Running</h2>
+    <p>
+      The app needs Streamlit running on <strong style="color:var(--teal)">localhost:8501</strong>.<br/>
+      Please open a terminal in your project folder and run:
+    </p>
+    <code>streamlit run app.py</code>
+    <p style="font-size:0.8rem; color:#64748b;">Then click Retry below.</p>
+    <button id="btn-retry" onclick="retryLoad()">🔄 Retry</button>
+  </div>
+
+  <!-- ── Top install bar ──────────────────────────────── -->
+  <div id="install-bar">
+    <div class="brand">
+      <div class="brand-icon">🩺</div>
+      <div>
+        <div class="brand-name">AI Malaria Lab Assistant</div>
+        <div class="brand-sub">Local · v2.0 · Ahmad Yahaya</div>
+      </div>
+    </div>
+
+    <div class="center-status">
+      <div class="status-dot"></div>
+      <span id="status-text">Connecting to local server…</span>
+    </div>
+
+    <div class="actions">
+      <div id="badge-installed">✅ App Installed</div>
+      <button id="btn-install" title="Install as desktop app">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+          <polyline points="7 10 12 15 17 10"/>
+          <line x1="12" y1="15" x2="12" y2="3"/>
+        </svg>
+        Install App
+      </button>
+    </div>
+  </div>
+
+  <!-- ── Offline banner ───────────────────────────────── -->
+  <div id="offline-banner" class="hidden">
+    <span>📡 You are offline — some features may be limited</span>
+    <button id="btn-close-offline" onclick="document.getElementById('offline-banner').classList.add('hidden')">&times;</button>
+  </div>
+
+  <!-- ── Streamlit embedded ───────────────────────────── -->
+  <iframe
+    id="app-frame"
+    src="http://localhost:8501"
+    title="AI Malaria Lab Assistant"
+    allow="camera; microphone; clipboard-read; clipboard-write"
+  ></iframe>
+
+  <script>
+    // ── Config ─────────────────────────────────────────
+    const STREAMLIT_URL = 'http://localhost:8501';
+    const CHECK_INTERVAL = 2000;  // ms between readiness checks
+    const MAX_WAIT       = 30000; // ms before showing retry
+
+    // ── DOM refs ───────────────────────────────────────
+    const overlay       = document.getElementById('loading-overlay');
+    const retryOverlay  = document.getElementById('retry-overlay');
+    const frame         = document.getElementById('app-frame');
+    const btnInstall    = document.getElementById('btn-install');
+    const badgeInstall  = document.getElementById('badge-installed');
+    const statusText    = document.getElementById('status-text');
+    const offlineBanner = document.getElementById('offline-banner');
+
+    let deferredPrompt  = null;
+    let checkTimer      = null;
+    let elapsed         = 0;
+
+    // ── 1. Register Service Worker ──────────────────────
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js')
+        .then(reg => console.log('[PWA] SW registered, scope:', reg.scope))
+        .catch(err => console.warn('[PWA] SW registration failed:', err));
+    }
+
+    // ── 2. Capture install prompt ───────────────────────
+    window.addEventListener('beforeinstallprompt', e => {
+      e.preventDefault();
+      deferredPrompt = e;
+      btnInstall.classList.add('visible');
+      console.log('[PWA] Install prompt captured');
+    });
+
+    btnInstall.addEventListener('click', async () => {
+      if (!deferredPrompt) return;
+      deferredPrompt.prompt();
+      const { outcome } = await deferredPrompt.userChoice;
+      if (outcome === 'accepted') {
+        btnInstall.classList.remove('visible');
+        badgeInstall.style.display = 'flex';
+      }
+      deferredPrompt = null;
+    });
+
+    window.addEventListener('appinstalled', () => {
+      btnInstall.classList.remove('visible');
+      badgeInstall.style.display = 'flex';
+      deferredPrompt = null;
+      console.log('[PWA] App installed!');
+    });
+
+    // ── 3. Offline detection ────────────────────────────
+    function updateOnline() {
+      if (navigator.onLine) {
+         offlineBanner.classList.add('hidden');
+      } else {
+         offlineBanner.classList.remove('hidden');
+      }
+    }
+    window.addEventListener('online',  updateOnline);
+    window.addEventListener('offline', updateOnline);
+    updateOnline();
+
+    // ── 4. Wait for Streamlit to be ready ──────────────
+    function checkStreamlit() {
+      fetch(STREAMLIT_URL, { mode: 'no-cors', cache: 'no-store' })
+        .then(() => {
+          // Server is up — load the iframe
+          clearInterval(checkTimer);
+          statusText.textContent = 'localhost:8501 · Running';
+          frame.src = STREAMLIT_URL;
+          setTimeout(() => {
+            overlay.classList.add('hiding');
+            setTimeout(() => overlay.style.display = 'none', 500);
+          }, 800);
+        })
+        .catch(() => {
+          elapsed += CHECK_INTERVAL;
+          statusText.textContent = `Waiting for server… (${Math.round(elapsed/1000)}s)`;
+          if (elapsed >= MAX_WAIT) {
+            clearInterval(checkTimer);
+            showRetry();
+          }
+        });
+    }
+
+    function showRetry() {
+      overlay.style.display = 'none';
+      retryOverlay.style.display = 'flex';
+    }
+
+    function retryLoad() {
+      retryOverlay.style.display = 'none';
+      overlay.style.display = 'flex';
+      overlay.classList.remove('hiding');
+      elapsed = 0;
+      checkTimer = setInterval(checkStreamlit, CHECK_INTERVAL);
+      checkStreamlit();
+    }
+
+    // Start polling immediately
+    checkStreamlit();
+    checkTimer = setInterval(checkStreamlit, CHECK_INTERVAL);
+
+    // ── 5. Propagate iframe load errors ────────────────
+    frame.addEventListener('load', () => {
+      try {
+        // If frame loaded something (even error page) — stop loader
+        overlay.classList.add('hiding');
+        setTimeout(() => overlay.style.display = 'none', 500);
+      } catch(e) {}
+    });
+  </script>
+</body>
+</html>
