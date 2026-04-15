@@ -1336,37 +1336,6 @@ def page_analytics():
             st.info("Timeline data unavailable.")
         st.markdown("</div>", unsafe_allow_html=True)
 
-    # ── Confidence per Severity box plot ──
-    st.markdown("""<div class="section-card">
-    <div class="section-title">📦 Confidence Score by Severity</div>""", unsafe_allow_html=True)
-
-    box_fig = go.Figure()
-    color_map = {
-        "Severe": {"hex": "#EF4444", "rgba": "rgba(239,68,68,0.15)"},
-        "Non-severe": {"hex": "#10B981", "rgba": "rgba(16,185,129,0.15)"},
-    }
-    for sev_val in ["Severe", "Non-severe"]:
-        sub = df[df["Severity"] == sev_val]["Confidence (%)"]
-        if not sub.empty:
-            box_fig.add_trace(go.Box(
-                y=sub,
-                name=sev_val,
-                marker_color=color_map[sev_val]["hex"],
-                boxmean="sd",
-                line=dict(color=color_map[sev_val]["hex"]),
-                fillcolor=color_map[sev_val]["rgba"],
-            ))
-    box_fig.update_layout(
-        paper_bgcolor=paper_color, plot_bgcolor=chart_bg,
-        font=dict(color=font_color, family="Inter"),
-        margin=dict(t=10, b=30, l=30, r=20),
-        yaxis=dict(title="Confidence (%)", color=font_color, gridcolor="#1e293b"),
-        xaxis=dict(color=font_color),
-        legend=dict(font=dict(color="#e2e8f0")),
-    )
-    st.plotly_chart(box_fig, use_container_width=True)
-    st.markdown("</div>", unsafe_allow_html=True)
-
     # ── Technician summary ──
     st.markdown("""<div class="section-card">
     <div class="section-title">👨‍⚕️ Technician Activity Summary</div>""", unsafe_allow_html=True)
