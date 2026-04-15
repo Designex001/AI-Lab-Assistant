@@ -1341,14 +1341,20 @@ def page_analytics():
     <div class="section-title">📦 Confidence Score by Severity</div>""", unsafe_allow_html=True)
 
     box_fig = go.Figure()
-    for sev_val, color in [("Severe", "#EF4444"), ("Non-severe", "#10B981")]:
+    color_map = {
+        "Severe": {"hex": "#EF4444", "rgba": "rgba(239,68,68,0.15)"},
+        "Non-severe": {"hex": "#10B981", "rgba": "rgba(16,185,129,0.15)"},
+    }
+    for sev_val in ["Severe", "Non-severe"]:
         sub = df[df["Severity"] == sev_val]["Confidence (%)"]
         if not sub.empty:
             box_fig.add_trace(go.Box(
-                y=sub, name=sev_val, marker_color=color,
-                boxmean="sd", line=dict(color=color),
-                fillcolor=color.replace(")", ",0.15)").replace("#", "rgba(").replace(
-                    "rgba(", "rgba(").replace("EF4444", "239,68,68").replace("10B981", "16,185,129"),
+                y=sub,
+                name=sev_val,
+                marker_color=color_map[sev_val]["hex"],
+                boxmean="sd",
+                line=dict(color=color_map[sev_val]["hex"]),
+                fillcolor=color_map[sev_val]["rgba"],
             ))
     box_fig.update_layout(
         paper_bgcolor=paper_color, plot_bgcolor=chart_bg,
