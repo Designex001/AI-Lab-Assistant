@@ -1374,9 +1374,10 @@ def page_analytics():
     tech_df = df.groupby("Technician").agg(
         Tests=("Severity", "count"),
         Severe_Cases=("Severity", lambda x: (x == "Severe").sum()),
+        Non_Severe_Cases=("Severity", lambda x: (x == "Non-severe").sum()),
         Avg_Confidence=("Confidence (%)", lambda x: round(float(x.mean()), 1)),
     ).reset_index()
-    tech_df.columns = ["Technician", "Total Tests", "Severe Cases", "Avg Confidence (%)"]
+    tech_df.columns = ["Technician", "Total Tests", "Severe Cases", "Non-severe Cases", "Avg Confidence (%)"]
 
     st.dataframe(tech_df, use_container_width=True, hide_index=True)
     st.markdown("</div>", unsafe_allow_html=True)
