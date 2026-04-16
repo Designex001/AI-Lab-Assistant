@@ -531,7 +531,7 @@ def show_login():
         """, unsafe_allow_html=True)
 
         with st.form("login_form", clear_on_submit=False):
-            uname = st.text_input("👤  Username", placeholder="e.g. admin / lab1 / lab2")
+            uname = st.text_input("👤  Username", placeholder="Enter your username")
             pw    = st.text_input("🔑  Password", type="password", placeholder="Enter your password")
             submitted = st.form_submit_button("Sign In", use_container_width=True)
 
@@ -543,16 +543,6 @@ def show_login():
                 st.rerun()
             else:
                 st.error("❌ Invalid credentials. Please try again.")
-
-        st.markdown("---")
-        st.markdown("""
-        <div style='text-align:center;'>
-            <span style='color:#64748b;font-size:.78rem;'>Demo accounts:</span><br/>
-            <code style='color:#00A896;'>admin</code> / <code style='color:#94a3b8;'>admin123</code> &nbsp;
-            <code style='color:#00A896;'>lab1</code> / <code style='color:#94a3b8;'>lab1pass</code> &nbsp;
-            <code style='color:#00A896;'>lab2</code> / <code style='color:#94a3b8;'>lab2pass</code>
-        </div>
-        """, unsafe_allow_html=True)
 
 # ════════════════════════════════════════════════════════════════
 #   SIDEBAR
