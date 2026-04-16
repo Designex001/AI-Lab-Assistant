@@ -419,44 +419,11 @@ hr { border-color:rgba(0,168,150,0.2) !important; }
 def _hash(pw: str) -> str:
     return hashlib.sha256(pw.encode()).hexdigest()
 
-
-def load_users() -> dict:
-    """Load login credentials from Streamlit secrets.
-    Expected secret format in secrets.toml:
-
-    [users.admin]
-    password = "admin123"
-    role = "Administrator"
-
-    [users.lab1]
-    password = "lab1pass"
-    role = "Lab Technician"
-    """
-    users = {}
-    try:
-        secret_users = st.secrets.get("users", {})
-
-        if isinstance(secret_users, dict):
-            for uname, creds in secret_users.items():
-                if isinstance(creds, dict):
-                    password = creds.get("password")
-                    role = creds.get("role")
-                    if password and role:
-                        users[uname] = {"hash": _hash(password), "role": role}
-                    elif creds.get("hash") and role:
-                        users[uname] = {"hash": creds["hash"], "role": role}
-    except Exception as e:
-        st.error(f"Error loading credentials from secrets: {e}")
-
-    return users
-
-
-@st.cache_resource
-def get_users():
-    """Cached user loading."""
-    return load_users()
-
-
+USERS = {
+    "admin": {"hash": _hash("admin123"),  "role": "Administrator"},
+    "lab1":  {"hash": _hash("lab1pass"),  "role": "Lab Technician"},
+    "lab2":  {"hash": _hash("lab2pass"),  "role": "Lab Technician"},
+}
 
 MODEL_PATH = os.path.join(os.path.dirname(__file__), "malaria_severity_model.h5")
 IMG_SIZE   = (224, 224)
@@ -564,26 +531,28 @@ def show_login():
         """, unsafe_allow_html=True)
 
         with st.form("login_form", clear_on_submit=False):
-            uname = st.text_input("👤  Username", placeholder="Enter your username")
+            uname = st.text_input("👤  Username", placeholder="e.g. admin / lab1 / lab2")
             pw    = st.text_input("🔑  Password", type="password", placeholder="Enter your password")
             submitted = st.form_submit_button("Sign In", use_container_width=True)
 
         if submitted:
-            users = get_users()
-            if uname in users and users[uname]["hash"] == _hash(pw):
+            if uname in USERS and USERS[uname]["hash"] == _hash(pw):
                 st.session_state["authenticated"] = True
                 st.session_state["username"]      = uname
-                st.session_state["user_role"]     = users[uname]["role"]
+                st.session_state["user_role"]     = USERS[uname]["role"]
                 st.rerun()
             else:
                 st.error("❌ Invalid credentials. Please try again.")
 
         st.markdown("---")
-        users = get_users()
-        if not users:
-            st.warning(
-                "No login credentials are configured. Add secure user entries under `users` in Streamlit secrets."
-            )
+        st.markdown("""
+        <div style='text-align:center;'>
+            <span style='color:#64748b;font-size:.78rem;'>Demo accounts:</span><br/>
+            <code style='color:#00A896;'>admin</code> / <code style='color:#94a3b8;'>admin123</code> &nbsp;
+            <code style='color:#00A896;'>lab1</code> / <code style='color:#94a3b8;'>lab1pass</code> &nbsp;
+            <code style='color:#00A896;'>lab2</code> / <code style='color:#94a3b8;'>lab2pass</code>
+        </div>
+        """, unsafe_allow_html=True)
 
 # ════════════════════════════════════════════════════════════════
 #   SIDEBAR
