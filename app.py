@@ -433,21 +433,30 @@ def load_users() -> dict:
     role = "Lab Technician"
     """
     users = {}
-    secret_users = st.secrets.get("users", {})
+    try:
+        secret_users = st.secrets.get("users", {})
 
-    if isinstance(secret_users, dict):
-        for uname, creds in secret_users.items():
-            if isinstance(creds, dict):
-                password = creds.get("password")
-                role = creds.get("role")
-                if password and role:
-                    users[uname] = {"hash": _hash(password), "role": role}
-                elif creds.get("hash") and role:
-                    users[uname] = {"hash": creds["hash"], "role": role}
+        if isinstance(secret_users, dict):
+            for uname, creds in secret_users.items():
+                if isinstance(creds, dict):
+                    password = creds.get("password")
+                    role = creds.get("role")
+                    if password and role:
+                        users[uname] = {"hash": _hash(password), "role": role}
+                    elif creds.get("hash") and role:
+                        users[uname] = {"hash": creds["hash"], "role": role}
+    except Exception as e:
+        st.error(f"Error loading credentials from secrets: {e}")
 
     return users
 
-USERS = load_users()
+
+@st.cache_resource
+def get_users():
+    """Cached user loading."""
+    return load_users()
+
+
 
 MODEL_PATH = os.path.join(os.path.dirname(__file__), "malaria_severity_model.h5")
 IMG_SIZE   = (224, 224)
@@ -560,16 +569,18 @@ def show_login():
             submitted = st.form_submit_button("Sign In", use_container_width=True)
 
         if submitted:
-            if uname in USERS and USERS[uname]["hash"] == _hash(pw):
+            users = get_users()
+            if uname in users and users[uname]["hash"] == _hash(pw):
                 st.session_state["authenticated"] = True
                 st.session_state["username"]      = uname
-                st.session_state["user_role"]     = USERS[uname]["role"]
+                st.session_state["user_role"]     = users[uname]["role"]
                 st.rerun()
             else:
                 st.error("❌ Invalid credentials. Please try again.")
 
         st.markdown("---")
-        if not USERS:
+        users = get_users()
+        if not users:
             st.warning(
                 "No login credentials are configured. Add secure user entries under `users` in Streamlit secrets."
             )
